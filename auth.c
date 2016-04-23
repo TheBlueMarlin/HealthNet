@@ -4,18 +4,11 @@ auth: L Fisher
 date: 15 APR 2016
 */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "auth.h"
 #include "sha1.h"
-
-
-
-
-
-
 
 int main() {
 
@@ -35,47 +28,30 @@ int main() {
 
 	SHA1Context* p = malloc(sizeof(SHA1Context));
 
+
+	printf("%20s", "USER HASH : ");
 	SHA1Reset(p);
 	SHA1Input(p, userString, userLen);
 	SHA1Result(p);
-
-	printf("%20s", "USER HASH : ");
-
 	for (i = 0; i < 5; i++)
 		printf("%08X ", p->Message_Digest[i]);
 	printf("\n");
-
-
 	for (i = 0; i < 5; i++) authToken[i] ^= p->Message_Digest[i];
 
 
-
-//
-
+	printf("%20s", "PWD HASH : ");
 	SHA1Reset(p);
 	SHA1Input(p, passString, passLen);
 	SHA1Result(p);
-
-	
-	printf("%20s", "PWD HASH : ");
-
 	for (i = 0; i < 5; i++)
 		printf("%08X ", p->Message_Digest[i]);
 	printf("\n");
-
 	for (i = 0; i < 5; i++) authToken[i] ^= p->Message_Digest[i];
 
 
-
-
 	printf("%20s", "AUTH TOKEN (XOR) : ");
-
 	for (i = 0; i < 5; i++)
 		printf("%08X ", authToken[i]);
 	printf("\n");
-
-
-
-
 }
 
