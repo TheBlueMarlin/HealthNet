@@ -1,8 +1,25 @@
-#ifndef AUTH_H
-#define AUTH_H
+#ifndef _AUTH_H
+#define _AUTH_H
+
+typedef struct User {
+
+	char* userName;
+	unsigned* authToken;
+	struct User* next;
+} User;
 
 
-//unsigned char *SHA1(const unsigned char *d, size_t n, unsigned char *md);
+typedef struct UserList {
+
+	struct User* head;
+
+} UserList;
+
+unsigned* createToken(char*, char*);
+User* createUser(char*, char*);
+User* createUser(char*, unsigned*);
+int addUser(UserList*, User*);
+int addUser(User* , User*);
 
 
 
