@@ -8,7 +8,6 @@ typedef struct User {
 	struct User* next;
 } User;
 
-
 typedef struct UserList {
 
 	struct User* head;
@@ -16,11 +15,9 @@ typedef struct UserList {
 } UserList;
 
 unsigned* createToken(char*, char*);
-User* createUser(char*, char*);
-User* createUser(char*, unsigned*);
-int addUser(UserList*, User*);
-int addUser(User* , User*);
-
-
+User* createUserP(char*, char*);
+User* createUserT(char*, unsigned*);
+void addUser(UserList*, User*);
+void addUserR(User*, User*);
 
 #endif
