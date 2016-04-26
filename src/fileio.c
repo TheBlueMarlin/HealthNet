@@ -6,72 +6,41 @@
 
 #define TRUE 1
 #define FALSE 0
-#define FN_CREDENTIALS ".././accounts/credentials.txt"
-#define FN_ASSIGNMENTS ".././accounts/assignments.txt"
-#define SIZEOF_CREDENTIAL 18 // user(8),delimiter(1),pass(8),newline(1)
-#define SIZEOF_USERNAME 8
-#define SIZEOF_PASSWORD 8
 
 int main()
 {
     printf("----Start of FileIO----\n");
-    if(userExists("pst7")) printf("USER \"pst7\" EXISTS\n");
-    if(userExists("ach40")) printf("USER \"ach40\" EXISTS\n");
-    if(userExists("acs43")) printf("USER \"acs43\" EXISTS\n");
-    if(userExists("cac83")) printf("USER \"cac83\" EXISTS\n");
+    readFile("000",'1',"00");
     printf("\n---- End of FileIO ----\n");
     return 0;
 }
 
-void createAccount(char role, char username[SIZEOF_USERNAME], char password[SIZEOF_PASSWORD]) {
+void readFile(char patientid[SIZEOF_PATIENTID],char fileType,char fileNumber[SIZEOF_FILENUMBER])
+{
+    char *filePathRoot = ".././patients/";
+    char *fileTypeExplicit;
+    if(fileType=='1') fileTypeExplicit="inprocessing";
+    else if(fileType=='2') fileTypeExplicit="outprocessing";
+    else if(fileType=='3') fileTypeExplicit="immunizations";
+    else if(fileType=='4') fileTypeExplicit="medications";
+    else fprintf(stderr, "incorrect fileType");
+    char filePath[1000];
+    sprintf(filePath,"%s%s%c%s%s%s",filePathRoot,patientid,'/',patientid,fileTypeExplicit,fileNumber);
+    // printf("%s",filePath);
+    FILE *filePointer = fopen(filePath,"r");
+    if(filePointer==NULL) fprintf(stderr, "NULL filePointer");
+    char c;
+    while((c=fgetc(filePointer))!=EOF) printf("%c",c);
+}
+void createFile(char patientid[SIZEOF_PATIENTID],char fileType,char fileNumber[SIZEOF_FILENUMBER])
+{
 
 }
-void assignPatient(char parent[SIZEOF_USERNAME], char patient[SIZEOF_USERNAME]) {
+void deleteFile(char patientid[SIZEOF_PATIENTID],char fileType,char fileNumber[SIZEOF_FILENUMBER])
+{
 
 }
-void unassignPatient(char parent[SIZEOF_USERNAME], char patient[SIZEOF_USERNAME]) {
-
-}
-void viewAssignments(char username[SIZEOF_USERNAME]) {
-
-}
-char getRole(char username[SIZEOF_USERNAME]) {
-    return FALSE;
-}
-char userExists(char username[SIZEOF_USERNAME]) {
-    FILE *fp = fopen(FN_CREDENTIALS,"r"); // credentials file
-    if(fp==NULL) return FALSE;
-    char c; // current character from file
-    char buffer[SIZEOF_USERNAME]; // current username from file
-    int i = 0; // general index
-    while((c=fgetc(fp))!=EOF && c!=',' && i<sizeof(buffer)) // run while not EOF, delimiter, or size > username
-    {
-        // printf("%c",c);
-        buffer[i++] = c;
-        if(!strncmp(buffer,username,i-1))
-        {
-            fclose(fp);
-            return TRUE;
-        }
-    }
-    fclose(fp);
-    return FALSE;
-}
-void deleteAccount(char username[SIZEOF_USERNAME]) {
-
-}
-void createRecord(char username[SIZEOF_USERNAME]) {
-
-}
-void editRecordField(char username[SIZEOF_USERNAME], char field) {
-
-}
-void viewRecordField(char username[SIZEOF_USERNAME], char field) {
-
-}
-void viewRecord(char username[SIZEOF_USERNAME]) {
-
-}
-void deleteRecord(char username[SIZEOF_USERNAME]) {
+void sendImmmunizations(char patientid[SIZEOF_PATIENTID])
+{
 
 }
