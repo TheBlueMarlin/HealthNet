@@ -16,6 +16,8 @@
 #define FILETYPE_IMMUNIZATIONS 3
 #define FILETYPE_MEDICATIONS 4
 
+#define NUMBEROF_FILETYPES 4
+
 #define IMMUNIZATIONS_PATH_LENGTH 29 // .././immunizations/000/
 
 int main()
@@ -75,10 +77,25 @@ void deleteFile(unsigned int patientid,unsigned int fileType,unsigned int fileNu
 }
 void showRecords(unsigned int patientid)
 {
-    // char *rootPath = malloc(1000); // buffer for rootPath
     // char *filePath = malloc(1000); // buffer for filePath
-    // sprintf(rootPath,".././patients/%03d/",patientid);
-
+    // char *fileTypeExplicit = malloc(1000);
+    // unsigned int fileType = 1;
+    // unsigned int fileNumber = 1;
+    // FILE *filePointer;
+    // while(fileType<NUMBEROF_FILETYPES)
+    // {
+    //     do {
+    //         fclose(filePointer);
+    //         getExplicitFileType(fileTypeExplicit,fileType);
+    //         sprintf(filePath,".././patients/%03d/%03d%s%02d",patientid,patientid,fileTypeExplicit);
+    //         filePointer = fopen(filePath,"r");
+    //         if(filePointer!=NULL) printf("%03d%s%02d\n",patientid,fileTypeExplicit,fileNumber++);
+    //     } while(filePointer!=NULL);
+    //     fclose(filePointer);
+    //     fileType++;
+    // }
+    // free(fileTypeExplicit);
+    // free(filePath);
 }
 void editFile(char *data,unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {
@@ -98,7 +115,7 @@ void appendFile(char *data,unsigned int patientid,unsigned int fileType,unsigned
     char *filePath = malloc(1000); // buffer for filePath
     concatFilePath(filePath,patientid,fileType,fileNumber); // generate filePath using params
     FILE *filePointer = fopen(filePath,"a");
-    if(filePointer==NULL) FILE *filePointer = fopen(filePath,"w");
+    if(filePointer==NULL) filePointer = fopen(filePath,"w");
     if(fileExists(filePath))
     {
         fprintf(filePointer,data);
@@ -132,13 +149,10 @@ void sendImmmunizations(unsigned int patientid)
 void concatFilePath(char *filePath,unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {   
     char *filePathRoot = ".././patients/"; // basic root for all patient files
-    char *fileTypeExplicit; // container for explicit name of fileType
-    if(fileType==FILETYPE_INPROCESSING) fileTypeExplicit="inprocessing";
-    else if(fileType==FILETYPE_OUTPROCESSING) fileTypeExplicit="outprocessing";
-    else if(fileType==FILETYPE_IMMUNIZATIONS) fileTypeExplicit="immunizations";
-    else if(fileType==FILETYPE_MEDICATIONS) fileTypeExplicit="medications";
-    else fprintf(stderr, "incorrect fileType\n");
+    char *fileTypeExplicit = malloc(1000); // container for explicit name of fileType
+    getExplicitFileType(fileTypeExplicit,fileType);
     sprintf(filePath,"%s%03d/%03d%s%02d",filePathRoot,patientid,patientid,fileTypeExplicit,fileNumber); // concatenate filePath
+    free(fileTypeExplicit);
     // printf("%s",filePath);
 }
 char fileExists(char *filePath)
@@ -151,4 +165,12 @@ char fileExists(char *filePath)
     }
     fclose(filePointer); // close file
     return TRUE;
+}
+void getExplicitFileType(char *fileTypeExplicit,unsigned int fileType)
+{
+    if(fileType==FILETYPE_INPROCESSING) fileTypeExplicit="inprocessing";
+    else if(fileType==FILETYPE_OUTPROCESSING) fileTypeExplicit="outprocessing";
+    else if(fileType==FILETYPE_IMMUNIZATIONS) fileTypeExplicit="immunizations";
+    else if(fileType==FILETYPE_MEDICATIONS) fileTypeExplicit="medications";
+    else fprintf(stderr, "incorrect fileType\n");
 }
