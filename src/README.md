@@ -3,7 +3,7 @@ Small File IO based healthcare network to demonstrate Secure Software Developmen
 
 # FILE IO
 
-## void readFile()
+## void readFile(unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 ### unsigned int patientid
 -id of desired patient record
 ### unsigned int fileType
@@ -15,29 +15,29 @@ Small File IO based healthcare network to demonstrate Secure Software Developmen
 ### unsigned int fileNumber
 -number of record in order from 0
 
-## void createFile()
+## void createFile(unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 ### same params as void readFile()
 
-## void deleteFile()
+## void deleteFile(unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 ### same params as void readFile()
 
-## void editFile()
+## void editFile(char *data,unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 ### char *data
 -data for writing to file
 ### same params as void readFile()
 
-## void appendFile()
+## void appendFile(char *data,unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 ### same params as void editFile()
 
-## void sendImmunizations()
+## void sendImmmunizations(unsigned int patientid)
 ### unsigned int patientid
 #### refer to void readFile()
 
-## void concatFilePath()
+## void concatFilePath(char *filePath,unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 ### char *filePath
 -static memory address for holding the filePath
 ### same params as void readFile()
 
-## void fileExists()
+## char fileExists(char *filePath)
 ### char *filePath
 #### refer to void concatFilePath()
