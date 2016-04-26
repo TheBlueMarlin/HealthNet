@@ -35,6 +35,8 @@ int main()
     for(int i=0;i<10;i++) createFile(0,FILETYPE_IMMUNIZATIONS,i);
     printf("\n");
 
+    showRecords(0);
+    
     sendImmmunizations(000); // function tester
     printf("---- End of FileIO ----\n");
     return 0;
@@ -77,25 +79,9 @@ void deleteFile(unsigned int patientid,unsigned int fileType,unsigned int fileNu
 }
 void showRecords(unsigned int patientid)
 {
-    // char *filePath = malloc(1000); // buffer for filePath
-    // char *fileTypeExplicit = malloc(1000);
-    // unsigned int fileType = 1;
-    // unsigned int fileNumber = 1;
-    // FILE *filePointer;
-    // while(fileType<NUMBEROF_FILETYPES)
-    // {
-    //     do {
-    //         fclose(filePointer);
-    //         getExplicitFileType(fileTypeExplicit,fileType);
-    //         sprintf(filePath,".././patients/%03d/%03d%s%02d",patientid,patientid,fileTypeExplicit);
-    //         filePointer = fopen(filePath,"r");
-    //         if(filePointer!=NULL) printf("%03d%s%02d\n",patientid,fileTypeExplicit,fileNumber++);
-    //     } while(filePointer!=NULL);
-    //     fclose(filePointer);
-    //     fileType++;
-    // }
-    // free(fileTypeExplicit);
-    // free(filePath);
+    char *filePath = malloc(1000); // buffer for filePath   
+    char *fileTypeExplicit = malloc(1000); // buffer for explicit fileType
+
 }
 void editFile(char *data,unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {
@@ -116,13 +102,13 @@ void appendFile(char *data,unsigned int patientid,unsigned int fileType,unsigned
     concatFilePath(filePath,patientid,fileType,fileNumber); // generate filePath using params
     FILE *filePointer = fopen(filePath,"a");
     if(filePointer==NULL) filePointer = fopen(filePath,"w");
-    if(fileExists(filePath))
+    if(filePointer==NULL) fprintf(stderr, "unable to create \"%s\"\n", filePath);
+    else
     {
         fprintf(filePointer,data);
         fclose(filePointer);
         printf("\"%s\" appended to \"%s\" w/o issue\n",data,filePath);
-    }
-    else fprintf(stderr, "unable to create \"%s\"\n", filePath);
+    } 
 }
 void sendImmmunizations(unsigned int patientid)
 {
