@@ -24,4 +24,3 @@ void sendImmmunizations(unsigned int patientid); // moves immunizations files to
 // helper function(s)
 void concatFilePath(char *filePath,char *fileTypeExplicit,unsigned int patientid,unsigned int fileType,unsigned int fileNumber); // combines params to generate filePath
 char fileExists(char *filePath); // returns 1 if file exists
-void getExplicitFileType(char *fileTypeExplicit,unsigned int fileType); // returns string of explicit fileType

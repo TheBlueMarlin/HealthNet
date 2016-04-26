@@ -10,6 +10,7 @@
 
 #define SIZEOF_PATIENTID 3
 #define SIZEOF_FILENUMBER 2
+#define STD_BUFFER_LENGTH 1000
 
 #define FILETYPE_INPROCESSING 1
 #define FILETYPE_OUTPROCESSING 2
@@ -18,42 +19,35 @@
 
 #define NUMBEROF_FILETYPES 4
 
-#define IMMUNIZATIONS_PATH_LENGTH 29 // .././immunizations/000/
+#define IMMUNIZATIONS_PATH_LENGTH 24 // .././immunizations/000/
+#define PATIENTS_PATH_LENGTH 18 // .././patients/000/
 
 int main()
 {
     printf("----Start of FileIO----\n");
 
-    appendFile("This is Patrick's Append",0,1,0); // function tester
-
-    // createFile(0,FILETYPE_INPROCESSING,0); // function tester
-    // readFile(0,FILETYPE_INPROCESSING,0); // function tester
-    // editFile("This is some data from the user",0,FILETYPE_INPROCESSING,0); // function tester
-    // readFile(0,FILETYPE_INPROCESSING,0); // function tester
-    // appendFile("--Let\'s append some more data!",0,FILETYPE_INPROCESSING,0); // function tester
-    // readFile(0,FILETYPE_INPROCESSING,0); // function tester
-    // deleteFile(0,FILETYPE_INPROCESSING,0); // function tester
-
-    // printf("\n");
-    // for(int i=0;i<10;i++) createFile(0,FILETYPE_IMMUNIZATIONS,i);
-    // printf("\n");
-
+    createFile(0,1,0);
+    readFile(0,1,0);
+    deleteFile(0,1,0);
+    editFile("might want to get that looked at...",0,2,0);
+    appendFile("you've got aids!",0,3,0);
     // showRecords(0);
+    sendImmmunizations(0);
     
-    // sendImmmunizations(000); // function tester
     printf("---- End of FileIO ----\n");
     return 0;
 }
 
 void readFile(unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {
-    char *filePath = malloc(1000); // buffer for filePath
-    char *fileTypeExplicit = malloc(1000); // buffer for Explicit fileType
+    char *filePath = malloc(STD_BUFFER_LENGTH); // buffer for filePath
+    char *fileTypeExplicit = malloc(STD_BUFFER_LENGTH); // buffer for Explicit fileType
+    char c;
+    FILE *filePointer;
     concatFilePath(filePath,fileTypeExplicit,patientid,fileType,fileNumber); // generate filePath using params
     if(fileExists(filePath))
     {
-        FILE *filePointer = fopen(filePath,"r");
-        char c;
+        filePointer = fopen(filePath,"r");
         while((c=fgetc(filePointer))!=EOF) printf("%c",c); // output char by char to EOF
         fclose(filePointer); // close file
     }
@@ -64,9 +58,12 @@ void readFile(unsigned int patientid,unsigned int fileType,unsigned int fileNumb
 }
 void createFile(unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {
-    char *filePath = malloc(1000); // buffer for filePath
-    char *fileTypeExplicit = malloc(1000); // buffer for Explicit fileType
+    char *filePath = malloc(STD_BUFFER_LENGTH); // buffer for filePath
+    char *fileTypeExplicit = malloc(STD_BUFFER_LENGTH); // buffer for Explicit fileType
+    char *mkdirPath = malloc(STD_BUFFER_LENGTH); // buffer for mkdir path;
+    sprintf(mkdirPath,".././patients/%03d/",patientid);
     concatFilePath(filePath,fileTypeExplicit,patientid,fileType,fileNumber); // generate filePath using params
+    mkdir(mkdirPath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     FILE *filePointer = fopen(filePath,"w");
     if(fileExists(filePath))
     {
@@ -75,13 +72,14 @@ void createFile(unsigned int patientid,unsigned int fileType,unsigned int fileNu
         printf("\"%s\" created w/o issue\n",filePath);
     }
     else fprintf(stderr, "unable to create \"%s\"\n", filePath);
+    free(mkdirPath);
     free(filePath);
     free(fileTypeExplicit);
 }
 void deleteFile(unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {
-    char *filePath = malloc(1000); // buffer for filePath
-    char *fileTypeExplicit = malloc(1000); // buffer for Explicit fileType
+    char *filePath = malloc(STD_BUFFER_LENGTH); // buffer for filePath
+    char *fileTypeExplicit = malloc(STD_BUFFER_LENGTH); // buffer for Explicit fileType
     concatFilePath(filePath,fileTypeExplicit,patientid,fileType,fileNumber); // generate filePath using params
     if(remove(filePath)) fprintf(stderr, "unable to delete file\n");
     else fprintf(stderr, "\"%s\" deleted\n", filePath);
@@ -89,38 +87,42 @@ void deleteFile(unsigned int patientid,unsigned int fileType,unsigned int fileNu
     free(fileTypeExplicit);
 }
 void showRecords(unsigned int patientid)
-{
-    char *filePath = malloc(1000); // buffer for filePath   
-    char *fileTypeExplicit = malloc(1000); // buffer for explicit fileType
+{/*
+    char *filePath = malloc(STD_BUFFER_LENGTH); // buffer for filePath   
+    char *fileTypeExplicit = malloc(STD_BUFFER_LENGTH); // buffer for explicit fileType
     unsigned int fileType = 1; // id of filetype
     unsigned int fileNumber = 0; // file number in order
     free(filePath);
     free(fileTypeExplicit);
-}
+*/}
 void editFile(char *data,unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {
-    char *filePath = malloc(1000); // buffer for filePath
-    char *fileTypeExplicit = malloc(1000); // buffer for Explicit fileType
+    char *filePath = malloc(STD_BUFFER_LENGTH); // buffer for filePath
+    char *fileTypeExplicit = malloc(STD_BUFFER_LENGTH); // buffer for explicit file type
     concatFilePath(filePath,fileTypeExplicit,patientid,fileType,fileNumber); // generate filePath using params
+    // printf("%s",filePath);
     FILE *filePointer = fopen(filePath,"w");
-    if(fileExists(filePath))
+    if(filePointer==NULL) createFile(patientid,fileType,fileNumber);
+    filePointer = fopen(filePath,"w");
+    if(filePointer==NULL) fprintf(stderr, "unable to create \"%s\"\n", filePath);
+    else
     {
         fprintf(filePointer,data);
         fclose(filePointer);
         printf("\"%s\" written to \"%s\" w/o issue\n",data,filePath);
-    }
-    else fprintf(stderr, "unable to create \"%s\"\n", filePath);
+    } 
     free(filePath);
     free(fileTypeExplicit);
 }
 void appendFile(char *data,unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {
-    char *filePath = malloc(1000); // buffer for filePath
-    char *fileTypeExplicit = malloc(1000); // buffer for Explicit fileType
+    char *filePath = malloc(STD_BUFFER_LENGTH); // buffer for filePath
+    char *fileTypeExplicit = malloc(STD_BUFFER_LENGTH); // buffer for explicit file type
     concatFilePath(filePath,fileTypeExplicit,patientid,fileType,fileNumber); // generate filePath using params
-    printf("%s",filePath);
+    // printf("%s",filePath);
     FILE *filePointer = fopen(filePath,"a");
-    if(filePointer==NULL) filePointer = fopen(filePath,"w");
+    if(filePointer==NULL) createFile(patientid,fileType,fileNumber);
+    filePointer = fopen(filePath,"a");
     if(filePointer==NULL) fprintf(stderr, "unable to create \"%s\"\n", filePath);
     else
     {
@@ -133,19 +135,19 @@ void appendFile(char *data,unsigned int patientid,unsigned int fileType,unsigned
 }
 void sendImmmunizations(unsigned int patientid)
 {
-    char *filePath = malloc(1000); // buffer for filePath
-    char *movePath = malloc(1000); // buffer for movePath
-    char *fileTypeExplicit = malloc(1000); // buffer for Explicit fileType
-    char mkdirPath[IMMUNIZATIONS_PATH_LENGTH];
+    char *filePath = malloc(STD_BUFFER_LENGTH); // buffer for filePath
+    char *movePath = malloc(STD_BUFFER_LENGTH); // buffer for movePath
+    char *fileTypeExplicit = malloc(STD_BUFFER_LENGTH); // buffer for Explicit fileType
+    char *mkdirPath = malloc(STD_BUFFER_LENGTH); // buffer for mkdir path;
+
     unsigned int immunizations = 0; // number of immunizations records in the file
     int renameFailed = 0; // boolean for testing rename function
     FILE *filePointer;
     do {
-        concatFilePath(filePath,fileTypeExplicit,patientid,FILETYPE_IMMUNIZATIONS,immunizations); // generate filePath using params
-        sprintf(movePath,".././immunizationsclinic/%03d/%03d%s%02d",patientid,patientid,fileTypeExplicit,immunizations); // generate movePath using params
-        // printf("\n\nYOU MADE IT!!!!!!!\n\n");
-        strncpy(mkdirPath,movePath,IMMUNIZATIONS_PATH_LENGTH);
+        concatFilePath(filePath,fileTypeExplicit,patientid,FILETYPE_IMMUNIZATIONS,immunizations); // generate filePath using params    
+        sprintf(mkdirPath,".././immunizationsclinic/%03d/",patientid);
         mkdir(mkdirPath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        sprintf(movePath,"%s%03d%s%02d",mkdirPath,patientid,"immunizations",immunizations); // generate movePath using params
         if(rename(filePath,movePath)) fprintf(stderr, "\"%s\" cannot be copied to \"%s\"\n",filePath,movePath); // copy file to immunizations clinic
         concatFilePath(filePath,fileTypeExplicit,patientid,FILETYPE_IMMUNIZATIONS,++immunizations); // generate filePath using params
         filePointer = fopen(filePath,"r"); // try to open file
@@ -153,12 +155,20 @@ void sendImmmunizations(unsigned int patientid)
     fclose(filePointer); // close file
     free(filePath);
     free(movePath);
+    free(mkdirPath);
     free(fileTypeExplicit);
 }
 void concatFilePath(char *filePath,char *fileTypeExplicit,unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {   
     char *filePathRoot = ".././patients/"; // basic root for all patient files
-    getExplicitFileType(fileTypeExplicit,fileType);
+    
+    if(fileType==FILETYPE_INPROCESSING) fileTypeExplicit="inprocessing";
+    else if(fileType==FILETYPE_OUTPROCESSING) fileTypeExplicit="outprocessing";
+    else if(fileType==FILETYPE_IMMUNIZATIONS) fileTypeExplicit="immunizations";
+    else if(fileType==FILETYPE_MEDICATIONS) fileTypeExplicit="medications";
+    else fprintf(stderr, "incorrect fileType\n");
+
+    // printf("%s",fileTypeExplicit);
     sprintf(filePath,"%s%03d/%03d%s%02d",filePathRoot,patientid,patientid,fileTypeExplicit,fileNumber); // concatenate filePath
     // printf("%s",filePath);
 }
@@ -172,12 +182,4 @@ char fileExists(char *filePath)
     }
     fclose(filePointer); // close file
     return TRUE;
-}
-void getExplicitFileType(char *fileTypeExplicit,unsigned int fileType)
-{
-    if(fileType==FILETYPE_INPROCESSING) fileTypeExplicit="inprocessing";
-    else if(fileType==FILETYPE_OUTPROCESSING) fileTypeExplicit="outprocessing";
-    else if(fileType==FILETYPE_IMMUNIZATIONS) fileTypeExplicit="immunizations";
-    else if(fileType==FILETYPE_MEDICATIONS) fileTypeExplicit="medications";
-    else fprintf(stderr, "incorrect fileType\n");
 }
