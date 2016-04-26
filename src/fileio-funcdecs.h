@@ -10,6 +10,7 @@
 void readFile(unsigned int patientid,unsigned int fileType,unsigned int fileNumber);
 void createFile(unsigned int patientid,unsigned int fileType,unsigned int fileNumber);
 void deleteFile(unsigned int patientid,unsigned int fileType,unsigned int fileNumber);
+void showRecords(unsigned int patientid); // displays all records belonging to patient
 
 /*
  * char *data

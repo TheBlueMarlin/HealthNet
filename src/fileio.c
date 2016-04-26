@@ -73,6 +73,13 @@ void deleteFile(unsigned int patientid,unsigned int fileType,unsigned int fileNu
     if(remove(filePath)) fprintf(stderr, "unable to delete file\n");
     else fprintf(stderr, "\"%s\" deleted\n", filePath);
 }
+void showRecords(unsigned int patientid)
+{
+    // char *rootPath = malloc(1000); // buffer for rootPath
+    // char *filePath = malloc(1000); // buffer for filePath
+    // sprintf(rootPath,".././patients/%03d/",patientid);
+
+}
 void editFile(char *data,unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {
     char *filePath = malloc(1000); // buffer for filePath
@@ -91,13 +98,14 @@ void appendFile(char *data,unsigned int patientid,unsigned int fileType,unsigned
     char *filePath = malloc(1000); // buffer for filePath
     concatFilePath(filePath,patientid,fileType,fileNumber); // generate filePath using params
     FILE *filePointer = fopen(filePath,"a");
+    if(filePointer==NULL) FILE *filePointer = fopen(filePath,"w");
     if(fileExists(filePath))
     {
         fprintf(filePointer,data);
         fclose(filePointer);
         printf("\"%s\" appended to \"%s\" w/o issue\n",data,filePath);
     }
-    else fprintf(stderr, "unable to create \"%s\"\n", filePath);   
+    else fprintf(stderr, "unable to create \"%s\"\n", filePath);
 }
 void sendImmmunizations(unsigned int patientid)
 {
