@@ -1,85 +1,54 @@
 /*
- * main.c
- *COMMAND LINE: Input the following command to run this program on the rose machine.
-
-gcc -o (output name) (file name).c -lcrypto
-
- *  Created on: Apr 19, 2016
- *      Author: Batgirl
+ * File:   main.c
+ * Author: marlin
+ *
+ * Created on April 26, 2016, 2:46 AM
  */
+
 #include <stdio.h>
-#include <openssl/sha.h>
-#include <string.h>
-/*
-print_hash()
-Can be used for file I/O
-Prints out the pointer value to standard i/o.
-*/
-void print_hash( const unsigned char* c)
-{
-	printf("The hash is: ");
-	int index = 0;
-	for (index = 0; index < SHA_DIGEST_LENGTH; index++)
-	{
-		printf("%X", *c++);//%X is used to print out the value of a pointer
-	}
-	printf("\n");
-}
+#include <stdlib.h>
+
+void create(char *, char *);
+void append();
+void read();
 
 /*
-create_key()
-Takes two character arrays and converts each character array into a hash. Then takes both hashes to create a key.
-Implementation: Use the print_hash function to write the key to memory (file i/o). There is no data storage in this function. Only use this function to create/verify the key.
-WARNING: Does not account for the length of the user name/password. Verify input prior would not exceed 50 per array.
-*/
-void create_key(unsigned char* user, unsigned char* pw)
-{
-	//variables
-	unsigned char uHash[SHA_DIGEST_LENGTH];//The hash of the user name
-	unsigned char pHash[SHA_DIGEST_LENGTH];//The hash of the password
-	unsigned char key[SHA_DIGEST_LENGTH * 2 + 1]; //The hash of the combination of
+ *
+ */
+int main(int argc, char** argv) {
+    char fileName[4] = "test";
+    char fileType[3] = "med";
 
-	//Functions to calculate hash
-	SHA1(user, strlen((char*)user), uHash);
-	SHA1(pw, strlen((char*)pw), pHash);
+    char name[11] = "testmed.txt";
 
-	//Adding both hashes to the same character array to create key
-	printf("Your Hash key is: ");
-	int index = 0;
-	int index2 = 0;
-	for (index = 0; index < SHA_DIGEST_LENGTH; index++)
-	{
-		key[index] = uHash[index];
-		printf("%X", key[index]);
-	}
-	for (index2 = 0; index2 < SHA_DIGEST_LENGTH; index2++)
-	{
-		key[index] = pHash[index2];
-		printf("%X", key[index]);
-		index++;
-	}
-	key[index] = '\0';
-	printf("\n");
+    create(fileName, fileType);
+    append(name);
 
+    return (EXIT_SUCCESS);
 }
 
 
+void create(char *fname, char *ftype) {
+    char fileName[11] = {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
+
+    char ext[4] = ".txt";
 
 
+    strncat(fileName, fname, 4);
+    strncat(fileName, ftype, 3);
+    strncat(fileName, ext, 4);
+
+    fprintf(stderr, "%s", fileName);
 
 
-
-/*Test case
-
-int main(int argc, char* argv[])
-{
-	unsigned char user[25];//string for the user name
-	unsigned char pw[25];//string for the password
-
-	scanf("%s", user);//input into the char array
-	scanf("%s", pw);//input into the char array
-
-	create_key(user, pw);
+    FILE *fout = fopen(fileName, "a");
+    fprintf(fout, "%s", "fuck this shit\n");
+    fclose(fout);
 }
 
-*/
+
+void append(char *fname) {
+    FILE *fout = fopen(fname, "a");
+    fprintf(fout, "%s", "fuck all of this shit\n");
+    fclose(fout);
+}

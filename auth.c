@@ -9,61 +9,125 @@ date: 15 APR 2016
 #include <string.h>
 #include "auth.h"
 #include "sha1.h"
+#include "UI.h"
 
-int main() {
-
-	UserList list;
-
-	addUser(&list, createUserP("lfisher", "12345%%^Fg"));
-	addUser(&list, createUserP("lfisher", "12345%%^Fg"));
-	addUser(&list, createUserP("lfisher", "12345%%^Fg"));
-	addUser(&list, createUserP("lfisher", "12345%%^Fg"));
-	addUser(&list, createUserP("lfisher", "12345%%^Fg"));
-	addUser(&list, createUserP("lfisher", "12345%%^Fg"));
-	addUser(&list, createUserP("lfisher", "12345%%^Fg"));
-	addUser(&list, createUserP("lfisher", "12345%%^Fg"));
-	addUser(&list, createUserP("lfisher", "12345%%^Fg"));
+User doctors[5];
+User nurses[5];
+User patients[20];
+User admins[2];
 
 
+User* login_S(char* username, char* password)
+{
 
+	int i = 0;
+	int k = 0;
+	unsigned* hash = createToken_UP(username, password);
 
-	return 0;
+//Check Doctors
+	for (i = 0; i < 5; i++)
+		for (k = 0; k < 5; k++) {
+			if (doctors[i]->hash[k] != hash[k]) break;
+			if (k == 4) return &doctors[i];
+		}
+
+//Check Nurses
+	for (i = 0; i < 5; i++)
+		for (k = 0; k < 5; k++) {
+			if (nurses[i]->hash[k] != hash[k]) break;
+			if (k == 4) return &nurses[i];
+		}
+
+//Check Patients
+	for (i = 0; i < 5; i++)
+		for (k = 0; k < 5; k++) {
+			if (patients[i]->hash[k] != hash[k]) break;
+			if (k == 4) return &patients[i];
+		}
+
+//Check Admins
+	for (i = 0; i < 5; i++)
+		for (k = 0; k < 5; k++) {
+			if (admins[i]->hash[k] != hash[k]) break;
+			if (k == 4) return &admins[i];
+		}
+
+	printf("==INVALID CREDENTIALS==\n");
+	return NULL;
 }
 
-void addUser(UserList* list, User* user) {
-	if (list->head == 0)
-		list->head = user;
-	else
-		addUserR(list->head->next, user);
+
+
+
+
+void displayDoctorOptions_S(User* loggedUser)
+{
+	if (loggedUser->role == 1) displayDoctorOptions();
+	else printf("== INVALID USER ==");
 
 }
 
-void addUserR(User * p, User * user) {
-
-	if (p->next == 0)
-		p->next = user;
-	else
-		addUserR(p->next, user);
+void displayNurseOptions_S(User* loggedUser)
+{
+	if (loggedUser->role == 2) displayNurseOptions();
+	else printf("== INVALID USER ==");
 
 }
 
-User* createUserP(char* userString, char* passString) {
-	User* newUser = malloc(sizeof(User));
-	newUser->userName = userString;
-	newUser->authToken = createToken(userString, passString);
-	newUser->next = 0;
-	return newUser;
+void displayPatientOptions_S(User* loggedUser)
+{
+	if (loggedUser->role == 3) displayPatientOptions();
+	else printf("== INVALID USER ==");
+
 }
 
-User* createUserT(char* userString, unsigned* authToken) {
-	User* newUser = malloc(sizeof(User));
-	newUser->userName = userString;
-	newUser->authToken = authToken;
-	newUser->next = 0;
-	return newUser;
+void displayAdminOptions_S(User* loggedUser)
+{
+	if (loggedUser->role == 4) displayAdminOptions();
+	else printf("== INVALID USER ==");
+
 }
 
-unsigned* createToken(char* userString, char* passString) {
+
+
+unsigned createToken_U(User* user) {
+
+	unsigned short i = 0;
+	unsigned short count = 0;
+
+	unsigned* authToken = malloc(sizeof(unsigned) * 5);
+	for (i = 0; i < 5; i++)
+		authToken[i] = 0;
+
+	unsigned short userLen = 0;
+	unsigned short passLen = 0;
+	while (user->name[count++] != 0)
+		userLen++;
+	count = 0;
+	while (user->pass[count++] != 0)
+		passLen++;
+
+	SHA1Context* u = malloc(sizeof(SHA1Context));
+	SHA1Context* p = malloc(sizeof(SHA1Context));
+
+	SHA1Reset(u);
+	SHA1Input(u, user->name, userLen);
+	SHA1Result(u);
+
+	SHA1Reset(p);
+	SHA1Input(p, user->pass, passLen);
+	SHA1Result(p);
+
+	for (i = 0; i < 5; i++)
+		authToken[i] ^= u->Message_Digest[i];
+	for (i = 0; i < 5; i++)
+		authToken[i] ^= p->Message_Digest[i];
+
+
+	return authToken;
+}
+
+unsigned createToken_UP(char* userString, char* passString) {
 
 	unsigned short i = 0;
 	unsigned short count = 0;
@@ -96,22 +160,22 @@ unsigned* createToken(char* userString, char* passString) {
 	for (i = 0; i < 5; i++)
 		authToken[i] ^= p->Message_Digest[i];
 
-	/*
-	 printf("%20s", "USER HASH : ");
-	 for (i = 0; i < 5; i++)
-	 printf("%08X ", u->Message_Digest[i]);
-	 printf("\n");
-
-	 printf("%20s", "PWD HASH : ");
-	 for (i = 0; i < 5; i++)
-	 printf("%08X ", p->Message_Digest[i]);
-	 printf("\n");
-
-	 printf("%20s", "AUTH TOKEN (XOR) : ");
-	 for (i = 0; i < 5; i++)
-	 printf("%08X ", authToken[i]);
-	 printf("\n");
-	 */
-
 	return authToken;
 }
+
+void addUsers() {
+	doctors[0] = newUser("Doc0", "doc0", 000, 1);
+	doctors[1] = newUser("Doc1", "doc1",  001, 1);
+
+	nurses[0] = newUser("Nurse0", "nurs0", 002, 2);
+	nurses[1] = newUser("Nurse1", "nurs1", 003, 2);
+
+	patients[0] = newUser("Pat0", "pat0", 000, 3);
+	patients[1] = newUser("Pat1", "pat1", 001, 3);
+	patients[2] = newUser("Pat2", "pat2", 002, 3);
+
+	admins[0] = newUser("Admin0", "admn0", 000, 4);
+	admins[1] = newUser("Admin1", "admn1", 000, 4);
+	return;
+}
+
