@@ -15,3 +15,6 @@ void createFile(char patientid[SIZEOF_PATIENTID],char fileType,char fileNumber[S
 void deleteFile(char patientid[SIZEOF_PATIENTID],char fileType,char fileNumber[SIZEOF_FILENUMBER]);
 
 void sendImmmunizations(char patientid[SIZEOF_PATIENTID]); // moves immunizations files to immunizationClinic directory
+
+// helper function(s)
+void concatFilePath(char *filePath,char patientid[SIZEOF_PATIENTID],char fileType,char fileNumber[SIZEOF_FILENUMBER]);
