@@ -1,6 +1,7 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
 
 #include "fileio-funcdecs.h"
 
@@ -10,12 +11,12 @@
 #define SIZEOF_PATIENTID 3
 #define SIZEOF_FILENUMBER 2
 
-#define FILETYPE_INPROCESSING '1'
-#define FILETYPE_OUTPROCESSING '2'
-#define FILETYPE_IMMUNIZATIONS '3'
-#define FILETYPE_MEDICATIONS '4'
+#define FILETYPE_INPROCESSING 1
+#define FILETYPE_OUTPROCESSING 2
+#define FILETYPE_IMMUNIZATIONS 3
+#define FILETYPE_MEDICATIONS 4
 
-#define NARROWPATH_OFFSET 14 // ".././patients/"
+#define IMMUNIZATIONS_PATH_LENGTH 29 // .././immunizations/000/
 
 int main()
 {
@@ -27,12 +28,17 @@ int main()
     appendFile("--Let\'s append some more data!",0,FILETYPE_INPROCESSING,0); // function tester
     readFile(0,FILETYPE_INPROCESSING,0); // function tester
     deleteFile(0,FILETYPE_INPROCESSING,0); // function tester
-    // sendImmmunizations(000); // function tester
+
+    printf("\n");
+    for(int i=0;i<10;i++) createFile(0,FILETYPE_IMMUNIZATIONS,i);
+    printf("\n");
+
+    sendImmmunizations(000); // function tester
     printf("---- End of FileIO ----\n");
     return 0;
 }
 
-void readFile(unsigned int patientid,char fileType,unsigned int fileNumber)
+void readFile(unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {
     char *filePath = malloc(1000); // buffer for filePath
     concatFilePath(filePath,patientid,fileType,fileNumber); // generate filePath using params
@@ -47,7 +53,7 @@ void readFile(unsigned int patientid,char fileType,unsigned int fileNumber)
     free(filePath); // free filePath malloc
     printf("\n");
 }
-void createFile(unsigned int patientid,char fileType,unsigned int fileNumber)
+void createFile(unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {
     char *filePath = malloc(1000); // buffer for filePath
     concatFilePath(filePath,patientid,fileType,fileNumber); // generate filePath using params
@@ -60,14 +66,14 @@ void createFile(unsigned int patientid,char fileType,unsigned int fileNumber)
     }
     else fprintf(stderr, "unable to create \"%s\"\n", filePath);
 }
-void deleteFile(unsigned int patientid,char fileType,unsigned int fileNumber)
+void deleteFile(unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {
     char *filePath = malloc(1000); // buffer for filePath
     concatFilePath(filePath,patientid,fileType,fileNumber); // generate filePath using params
     if(remove(filePath)) fprintf(stderr, "unable to delete file\n");
     else fprintf(stderr, "\"%s\" deleted\n", filePath);
 }
-void editFile(char *data,unsigned int patientid,char fileType,unsigned int fileNumber)
+void editFile(char *data,unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {
     char *filePath = malloc(1000); // buffer for filePath
     concatFilePath(filePath,patientid,fileType,fileNumber); // generate filePath using params
@@ -80,7 +86,7 @@ void editFile(char *data,unsigned int patientid,char fileType,unsigned int fileN
     }
     else fprintf(stderr, "unable to create \"%s\"\n", filePath);
 }
-void appendFile(char *data,unsigned int patientid,char fileType,unsigned int fileNumber)
+void appendFile(char *data,unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {
     char *filePath = malloc(1000); // buffer for filePath
     concatFilePath(filePath,patientid,fileType,fileNumber); // generate filePath using params
@@ -94,32 +100,28 @@ void appendFile(char *data,unsigned int patientid,char fileType,unsigned int fil
     else fprintf(stderr, "unable to create \"%s\"\n", filePath);   
 }
 void sendImmmunizations(unsigned int patientid)
-{/*
-    char *filePath = malloc(1000); // buffer for filePath, orig location of record
-    char *movePath = malloc(1000); // buffer for movePath, new location for record
-    char *narrowPath = malloc(1000); // buffer for narrowPath, path w/in orig root directory
-    unsigned int i = 0; // general index
-    unsigned int x = 0; // general index
-    unsigned int immunizations = 0; // number of immunization files
-    concatFilePath(filePath,patientid,'FILETYPE_IMMUNIZATIONS',immunizations); // generate initial filePath using params
-    while(fileExists(filePath))
-    {
-        i=0;
-        x=NARROWPATH_OFFSET-1;
-        while(x<sizeof(filePath))
-        {
-            narrowPath[i] = filePath[x++]
-        }
-        sprintf(movePath,".././immunizationsclinic/%s",narrowPath);
-        if(rename(filePath,movePath)) fprintf(stderr, "\"%s\" unable to be moved to \"%s\"",filePath,movePath); // copy file to movePath
-        else deleteFile(filePath); // if successful, delete original file
-        concatFilePath(filePath,patientid,'FILETYPE_IMMUNIZATIONS',++immunizations); // generate initial filePath using params
-    }
-    free(filePath);
-    free(movePath);
-    free(narrowPath);
-*/}
-void concatFilePath(char *filePath,unsigned int patientid,char fileType,unsigned int fileNumber)
+{
+    char *filePath = malloc(1000); // buffer for filePath
+    char *movePath = malloc(1000); // buffer for movePath
+    char *filePathRoot = ".././immunizationsclinic/";
+    char *fileTypeExplicit = "immunizations";
+    char mkdirPath[IMMUNIZATIONS_PATH_LENGTH];
+    unsigned int immunizations = 0; // number of immunizations records in the file
+    int renameFailed = 0; // boolean for testing rename function
+    FILE *filePointer;
+    do {
+        concatFilePath(filePath,patientid,FILETYPE_IMMUNIZATIONS,immunizations); // generate filePath using params
+        sprintf(movePath,"%s%03d/%03d%s%02d",filePathRoot,patientid,patientid,fileTypeExplicit,immunizations); // generate movePath using params
+        // printf("\n\nYOU MADE IT!!!!!!!\n\n");
+        strncpy(mkdirPath,movePath,IMMUNIZATIONS_PATH_LENGTH);
+        mkdir(mkdirPath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        if(rename(filePath,movePath)) fprintf(stderr, "\"%s\" cannot be copied to \"%s\"\n",filePath,movePath); // copy file to immunizations clinic
+        concatFilePath(filePath,patientid,FILETYPE_IMMUNIZATIONS,++immunizations); // generate filePath using params
+        filePointer = fopen(filePath,"r"); // try to open file
+    } while(filePointer!=NULL); // check for null pointer
+    fclose(filePointer); // close file
+}
+void concatFilePath(char *filePath,unsigned int patientid,unsigned int fileType,unsigned int fileNumber)
 {   
     char *filePathRoot = ".././patients/"; // basic root for all patient files
     char *fileTypeExplicit; // container for explicit name of fileType
