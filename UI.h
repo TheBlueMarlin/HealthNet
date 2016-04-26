@@ -14,14 +14,14 @@ extern "C" {
 
 typedef struct
 {
-	char name[30];
-	char pass[5];
+	unsigned char name[5];
+	unsigned char pass[5];
 	int ID;
-	unsigned int hash[5];
+	unsigned int* hash;
 	int role;
 } User;
 
-User newUser(char[], char[], int, int);
+User newUser(unsigned char[], unsigned char[], int, int);
 
 void printUsers(User[]);
 
@@ -30,9 +30,6 @@ void printUsers(User[]);
  */
 void displayDoctorOptions();
 
-/*
- */
-void displayNurseOptions();
 
 /*
  */
